@@ -1,0 +1,36 @@
+namespace: media
+
+replicas: 1
+
+image:
+  name: jellyfin/jellyfin
+  tag: latest
+
+ports:
+  webui: 8096
+
+storage:
+  configSize: 50Gi
+
+mounts: []
+#  - pvcName: ""
+#    mountName: ""
+#    path: ""
+#
+resources:
+  limits:
+    memory: 12288Mi
+    cpu: 6
+    gpu.intel.com/i915: 1
+  requests:
+    memory: 512Mi
+    cpu: 1
+    gpu.intel.com/i915: 1
+
+envVars:
+  - name: PUID
+    value: "1000"
+  - name: PGID
+    value: "1000"
+  - name: TZ
+    value: "Etc/UTC"

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace | or .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        intel.feature.node.kubernetes.io/gpu: "true"
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        image: {{ printf "%s:%s" .Values.image.name .Values.image.tag }}
+        env:
+        {{- range .Values.envVars }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.ports.webui }}
+          name: webui
+        volumeMounts:
+        - name: {{ .Release.Name }}-config
+          mountPath: /config
+        - name: dri-device
+          mountPath: /dev/dri
+        {{- range .Values.mounts }}
+        - name: {{ .mountName }}
+          mountPath: /{{ .path }}
+          subPath: {{ .path }}
+        {{- end }}
+        resources: {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      {{- range .Values.mounts }}
+      - name: {{ .mountName }}
+        persistentVolumeClaim:
+          claimName: {{ .pvcName }}
+      {{- end }}
+      - name: {{ .Release.Name }}-config
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-config-pvc
+      - name: dri-device
+        hostPath:
+          path: /dev/dri
+          type: Directory

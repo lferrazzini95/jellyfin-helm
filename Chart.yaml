@@ -1,0 +1,6 @@
+apiVersion: 0.1.0
+name: jellyfin-helm
+version: 0.1.0
+description: Jellyfin setup
+type: application
+appVersion: 0.1.0
