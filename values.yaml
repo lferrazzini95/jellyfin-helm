@@ -34,3 +34,9 @@ envVars:
     value: "1000"
   - name: TZ
     value: "Etc/UTC"
+
+ingress:
+  enabled: true
+  # host: "my.jellyfin.com"
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
